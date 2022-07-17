@@ -48,6 +48,7 @@ func getRecords(w http.ResponseWriter, r *http.Request) {
 			log.Println("error 3")
 			panic(err.Error())
 		}
+
 		car.id = id
 		car.name = name
 		car.model = model
@@ -56,7 +57,7 @@ func getRecords(w http.ResponseWriter, r *http.Request) {
 		response = append(response, car)
 
 	}
-	log.Println(response)
+	log.Println("get Records")
 	fmt.Fprint(w, response)
 	defer db.Close()
 }
@@ -81,6 +82,7 @@ func insertRecods(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "insert Records")
+	log.Println("Records Saved")
 
 }
 
@@ -99,6 +101,7 @@ func updateRecods(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "Updated Record")
+	log.Println("Record Updated")
 }
 
 func deleteRecods(w http.ResponseWriter, r *http.Request) {
@@ -114,6 +117,7 @@ func deleteRecods(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "Deleted Record")
+	log.Println("Deleted Record")
 }
 
 func main() {
@@ -123,4 +127,5 @@ func main() {
 	http.HandleFunc("/update", updateRecods)
 	http.HandleFunc("/delete", deleteRecods)
 	http.ListenAndServe(":8080", nil)
+
 }
