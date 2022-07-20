@@ -1,131 +1,194 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
-	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type Cars struct {
-	id    int
-	name  string
-	model string
-	year  int
+	Id        int
+	Name      string
+	Model     string
+	Year      int
+	DeleteAt  time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
-func dbConn() (db *sql.DB) {
+func dbConn() (DB *gorm.DB) {
 
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:8889)/crud_cars")
-	db.SetConnMaxLifetime(time.Minute * 4) // <-- this
+	//db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:8889)/crud_cars")
+	/*
+		db.SetConnMaxLifetime(time.Minute * 4) // <-- this
+		if err != nil {
+			log.Println("error")
+
+			panic(err.Error())
+		}
+	*/
+
+	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
+	dsn := "root:root@tcp(127.0.0.1:8889)/crud_cars?charset=utf8mb4&parseTime=True&loc=Local"
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		QueryFields: true,
+	})
+
 	if err != nil {
-		log.Println("error")
-
-		panic(err.Error())
+		panic("failed to connect database")
 	}
+	// Migrate the schema
+	db.AutoMigrate(&Cars{})
 	return db
 }
 
-func getRecords(w http.ResponseWriter, r *http.Request) {
+func getRecords(c *gin.Context) {
+
 	db := dbConn()
-	selDB, err := db.Query("SELECT * FROM cars")
-	if err != nil {
-		log.Println("error 2 ")
-		panic(err.Error())
-	}
-	car := Cars{}
-	response := []Cars{}
-	for selDB.Next() {
-		var id int
-		var name string
-		var model string
-		var year int
-		err = selDB.Scan(&id, &name, &model, &year)
+
+	var cars []Cars
+	db.Find(&cars)
+	c.JSON(200, &cars)
+
+	/*
+		db := dbConn()
+		selDB, err := db.Query("SELECT * FROM cars")
+
 		if err != nil {
-			log.Println("error 3")
+			log.Println("error 2 ")
 			panic(err.Error())
 		}
 
-		car.id = id
-		car.name = name
-		car.model = model
-		car.year = year
-		//used to fill array
-		response = append(response, car)
+		c.Request.Context()
+		car := Cars{}
+		var response []Cars
 
-	}
-	log.Println("get Records")
-	fmt.Fprint(w, response)
-	defer db.Close()
-}
+		for selDB.Next() {
+			var id int
+			var name string
+			var model string
+			var year int
+			err = selDB.Scan(&id, &name, &model, &year)
+			if err != nil {
+				log.Println("error 3")
+				panic(err.Error())
+			}
+			car.id = id
+			car.name = name
+			car.model = model
+			car.year = year
 
-func insertRecods(w http.ResponseWriter, r *http.Request) {
+			//used to fill array
+			response = append(response, car)
+		}
 
-	db := dbConn()
-	defer db.Close()
+		//usersBytes, _ := json.Marshal(&response)
 
-	sql := "INSERT INTO cars(name, model,year) VALUES (?,?,?)"
-	res, err := db.Exec(sql, "Opel", "test", 1997)
+		log.Println(response)
 
-	if err != nil {
-		panic(err.Error())
-	}
-
-	lastId, err := res.LastInsertId()
-
-	if err != nil {
-		log.Fatal(err)
-		log.Fatal(lastId)
-	}
-
-	fmt.Fprintln(w, "insert Records")
-	log.Println("Records Saved")
+		c.JSON(200, gin.H{
+			"response": response,
+		})
+	*/
 
 }
 
-func updateRecods(w http.ResponseWriter, r *http.Request) {
+func insertRecods(c *gin.Context) {
 
 	db := dbConn()
-	defer db.Close()
 
-	sql := `UPDATE cars 
-	       SET name = ? , model = ?, year = ?
-	       WHERE id = ?;`
-	_, err := db.Exec(sql, "opelUpdate", "modelUpdated", 2022, 6)
+	car := Cars{Name: "car orm", Model: "model ORM ", Year: 255555, CreatedAt: time.Now()}
+	db.Select("name", "model", "year", "created_at").Create(&car)
 
-	if err != nil {
-		panic(err.Error())
-	}
+	c.JSON(200, "Created records")
 
-	fmt.Fprintln(w, "Updated Record")
-	log.Println("Record Updated")
+	/*
+		sql := "INSERT INTO cars(name, model,year) VALUES (?,?,?)"
+		res, err := db.Exec(sql, "Opel", "test", 1997)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		lastId, err := res.LastInsertId()
+
+		if err != nil {
+			log.Fatal(err)
+			log.Fatal(lastId)
+		}
+
+		fmt.Fprintln(w, "insert Records")
+		log.Println("Records Saved")
+	*/
+
 }
 
-func deleteRecods(w http.ResponseWriter, r *http.Request) {
+func updateRecods(c *gin.Context) {
 
 	db := dbConn()
-	defer db.Close()
 
-	sql := `DELETE FROM cars WHERE id = ?;`
-	_, err := db.Exec(sql, 6)
+	db.Model(&Cars{}).Where("id = 1").Updates(Cars{Name: "helloTEST", Model: "modelTest", Year: 555555})
 
-	if err != nil {
-		panic(err.Error())
-	}
+	c.JSON(200, "Updated records")
 
-	fmt.Fprintln(w, "Deleted Record")
-	log.Println("Deleted Record")
+	/*
+
+		sql := `UPDATE cars
+		       SET name = ? , model = ?, year = ?
+		       WHERE id = ?;`
+		_, err := db.Exec(sql, "opelUpdate", "modelUpdated", 2022, 6)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		fmt.Fprintln(w, "Updated Record")
+		log.Println("Record Updated")
+	*/
+}
+
+func deleteRecods(c *gin.Context) {
+
+	db := dbConn()
+
+	db.Delete(&Cars{}, 2)
+
+	c.JSON(200, "Deleted records")
+
+	//db := dbConn()
+	/*
+		defer db.Close()
+
+		sql := `DELETE FROM cars WHERE id = ?;`
+		_, err := db.Exec(sql, 6)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		fmt.Fprintln(w, "Deleted Record")
+		log.Println("Deleted Record")
+	*/
 }
 
 func main() {
 	log.Println("Server started on: http://localhost:8080")
-	http.HandleFunc("/", getRecords)
-	http.HandleFunc("/insert", insertRecods)
-	http.HandleFunc("/update", updateRecods)
-	http.HandleFunc("/delete", deleteRecods)
-	http.ListenAndServe(":8080", nil)
+
+	//http.HandleFunc("/update", updateRecods)
+	//http.HandleFunc("/delete", deleteRecods)
+
+	server := gin.Default()
+
+	server.GET("/", getRecords)
+	server.POST("/insert", insertRecods)
+	server.PUT("/update", updateRecods)
+	server.DELETE("/delete", deleteRecods)
+
+	server.Run(":8080")
 
 }
