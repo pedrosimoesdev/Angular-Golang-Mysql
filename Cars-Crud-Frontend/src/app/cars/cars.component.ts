@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { map } from 'rxjs';
 import {CarsService} from '../services/cars.service'
+import {Cars} from '../model/cars'
+
 
 
 @Component({
@@ -9,29 +12,23 @@ import {CarsService} from '../services/cars.service'
 })
 export class CarsComponent implements OnInit {
 
+
   constructor(private carService: CarsService){
    
   }
   title = 'Show Cars'
-  cars = []
-
-
-
+  Cars : any;
+  
   ngOnInit(): void {
    
-      this.getCars()
+     this.getCars()
     
-
   }
 
-    getCars(){
-   
-  this.carService.getCars().subscribe(res => {
-    console.log(res);
-
-    });
-}
-
-
-
+  getCars(){
+   this.carService.getCars().subscribe(result => {
+     console.log(result)
+    this.Cars=result;
+   })
+  }
 }

@@ -9,34 +9,32 @@
 
 <body>
       <h1>{{title}}</h1>
+      <form action="/cars/create">
+        <button type="submit" class="btn btn-primary">Create a new Record</button>
+      </form>
+     
 
       <table class="table table-dark">
   <thead>
     <tr>
-      <th scope="col">#</th>
-      <th scope="col">Name of car</th>
-      <th scope="col">Model of car</th>
-      <th scope="col">Year</th>
+      <th style="width: 20%">ID</th>
+      <th style="width: 250">Name of car</th>
+      <th style="width: 20%">Model of car</th>
+      <th style="width: 20%">Year</th>
+      <th style="width: 20%">Actions</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
+    <tr > 
+    <tr *ngFor="let car of Cars; let i = index"> 
+      <td>{{car.Id}}</td>
+      <td>{{car.Name}} </td>
+      <td>{{car.Model}} </td>
+      <td>{{car.Year}} </td>
+      <td style="text-align:center">
+        <button type="button" class="btn btn-warning">Update Record</button>
+        <button type="button" class="btn btn-danger">Delete Record</button>
+      </td>
     </tr>
   </tbody>
 </table>
