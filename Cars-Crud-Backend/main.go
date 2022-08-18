@@ -1,9 +1,11 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"gorm.io/driver/mysql"
@@ -54,11 +56,6 @@ func getRecords(c *gin.Context) {
 	var cars []Cars
 	db.Find(&cars)
 
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
 	c.JSON(200, &cars)
 
 	log.Println(cars)
@@ -108,6 +105,11 @@ func getRecords(c *gin.Context) {
 
 func insertRecods(c *gin.Context) {
 
+	log.Println("test")
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	log.Printf("ctx.Request.body: %v", string(data))
+	log.Println(c.Request)
+
 	db := dbConn()
 
 	car := Cars{Name: "car orm", Model: "model ORM ", Year: 255555, CreatedAt: time.Now()}
@@ -143,6 +145,11 @@ func updateRecods(c *gin.Context) {
 	db.Model(&Cars{}).Where("id = 1").Updates(Cars{Name: "helloTEST", Model: "modelTest", Year: 555555})
 
 	c.JSON(200, "Updated records")
+
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 
 	/*
 
@@ -191,6 +198,8 @@ func main() {
 	//http.HandleFunc("/delete", deleteRecods)
 
 	server := gin.Default()
+
+	server.Use(cors.Default())
 
 	server.GET("/", getRecords)
 	server.POST("/insert", insertRecods)

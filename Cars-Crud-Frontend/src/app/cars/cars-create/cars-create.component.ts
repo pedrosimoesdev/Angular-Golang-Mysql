@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
+import {CarsService} from '../../services/cars.service'
 
 
 @Component({
@@ -9,22 +10,46 @@ import { FormBuilder } from '@angular/forms';
 })
 export class CarsCreateComponent implements OnInit {
 
+ 
   checkoutForm = this.formBuilder.group({
-    name: '',
-    model: '',
-    year: '',
+    Name: ['', Validators.required],
+    Model: ['', Validators.required],
+    Year: ['', Validators.required],
+    
   });
 
 
   constructor(
     private formBuilder: FormBuilder,
-  ) { }
+    private carService: CarsService
+  ) { 
+   
+  }
 
   ngOnInit(): void {
+ 
   }
 
   onSubmit(){
-    console.log('teasting');
-  }
 
+    let name = this.checkoutForm.value.Name;
+    let model = this.checkoutForm.value.Model;
+    let year = this.checkoutForm.value.Year;
+
+    let car = [name, model, year];
+    
+
+    if(name === '' || model === '' || year ===  '' ){
+      alert('Please fill all inputs')
+      return;
+    } 
+
+  
+    this.carService.createCar(car).subscribe(result => {
+      console.log(result)
+     
+    })
+
+   }
+  
 }

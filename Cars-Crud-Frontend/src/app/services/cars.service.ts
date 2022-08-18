@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, retry, throwError } from 'rxjs';
 import { Cars } from '../model/cars'
 
@@ -12,7 +12,7 @@ export class CarsService {
 
 
   private SERVER = "http://localhost:8080/";
-
+  
   constructor(private httpClient: HttpClient) { }
 
 
@@ -21,6 +21,13 @@ export class CarsService {
         .get<Cars>(this.SERVER )
         .pipe(retry(1), catchError(this.handleError));
     }
+
+ 
+  createCar( data: any) { 
+  
+  return this.httpClient.post<Cars>(this.SERVER + 'insert' ,  JSON.stringify(data), {})
+      .pipe(catchError((e) => this.handleError(e)));
+  }
 
   // Error handling
   handleError(error: any) {
@@ -38,7 +45,5 @@ export class CarsService {
     });
   }
 
-    // public post(url: string, data: any, options?: any) { 
-    //   return this.http.post(url, data, options); 
-    //   } 
+
 }
