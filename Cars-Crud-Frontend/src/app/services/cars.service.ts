@@ -11,7 +11,7 @@ import { Cars } from '../model/cars'
 export class CarsService {
 
 
-  private SERVER = "http://localhost:8080/";
+  private SERVER = "http://localhost:3000/";
   
   constructor(private httpClient: HttpClient) { }
 
@@ -25,7 +25,7 @@ export class CarsService {
  
   createCar( data: any) { 
   
-  return this.httpClient.post<Cars>(this.SERVER + 'insert' ,  JSON.stringify(data), {})
+  return this.httpClient.post<Cars>(this.SERVER + 'insert' , data, {})
       .pipe(catchError((e) => this.handleError(e)));
   }
 

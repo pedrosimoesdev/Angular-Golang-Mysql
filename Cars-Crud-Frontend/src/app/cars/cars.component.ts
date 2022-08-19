@@ -27,7 +27,6 @@ export class CarsComponent implements OnInit {
 
   getCars(){
    this.carService.getCars().subscribe(result => {
-     console.log(result)
     this.Cars=result;
    })
   }

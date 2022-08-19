@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"time"
@@ -24,17 +25,6 @@ type Cars struct {
 
 func dbConn() (DB *gorm.DB) {
 
-	//db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:8889)/crud_cars")
-	/*
-		db.SetConnMaxLifetime(time.Minute * 4) // <-- this
-		if err != nil {
-			log.Println("error")
-
-			panic(err.Error())
-		}
-	*/
-
-	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
 	dsn := "root:root@tcp(127.0.0.1:8889)/crud_cars?charset=utf8mb4&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -58,83 +48,33 @@ func getRecords(c *gin.Context) {
 
 	c.JSON(200, &cars)
 
-	log.Println(cars)
-
-	/*
-		db := dbConn()
-		selDB, err := db.Query("SELECT * FROM cars")
-
-		if err != nil {
-			log.Println("error 2 ")
-			panic(err.Error())
-		}
-
-		c.Request.Context()
-		car := Cars{}
-		var response []Cars
-
-		for selDB.Next() {
-			var id int
-			var name string
-			var model string
-			var year int
-			err = selDB.Scan(&id, &name, &model, &year)
-			if err != nil {
-				log.Println("error 3")
-				panic(err.Error())
-			}
-			car.id = id
-			car.name = name
-			car.model = model
-			car.year = year
-
-			//used to fill array
-			response = append(response, car)
-		}
-
-		//usersBytes, _ := json.Marshal(&response)
-
-		log.Println(response)
-
-		c.JSON(200, gin.H{
-			"response": response,
-		})
-	*/
-
 }
 
 func insertRecods(c *gin.Context) {
 
 	log.Println("test")
-	data, _ := ioutil.ReadAll(c.Request.Body)
-	log.Printf("ctx.Request.body: %v", string(data))
-	log.Println(c.Request)
+	data, err := ioutil.ReadAll(c.Request.Body)
+
+	//check why i need doing it
+	//I guess that it use to convert to string this endpoint returns Json format
+	records := Cars{}
+	json.Unmarshal([]byte(data), &records)
+
+	var name = records.Name
+	var model = records.Model
+	var year = records.Year
+
+	if err != nil {
+		log.Panicf("error: %s", err)
+		c.JSON(500, "not ok records")
+	}
 
 	db := dbConn()
 
-	car := Cars{Name: "car orm", Model: "model ORM ", Year: 255555, CreatedAt: time.Now()}
+	car := Cars{Name: name, Model: model, Year: year, CreatedAt: time.Now()}
 	db.Select("name", "model", "year", "created_at").Create(&car)
 
 	c.JSON(200, "Created records")
-
-	/*
-		sql := "INSERT INTO cars(name, model,year) VALUES (?,?,?)"
-		res, err := db.Exec(sql, "Opel", "test", 1997)
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		lastId, err := res.LastInsertId()
-
-		if err != nil {
-			log.Fatal(err)
-			log.Fatal(lastId)
-		}
-
-		fmt.Fprintln(w, "insert Records")
-		log.Println("Records Saved")
-	*/
 
 }
 
@@ -146,25 +86,6 @@ func updateRecods(c *gin.Context) {
 
 	c.JSON(200, "Updated records")
 
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
-	/*
-
-		sql := `UPDATE cars
-		       SET name = ? , model = ?, year = ?
-		       WHERE id = ?;`
-		_, err := db.Exec(sql, "opelUpdate", "modelUpdated", 2022, 6)
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		fmt.Fprintln(w, "Updated Record")
-		log.Println("Record Updated")
-	*/
 }
 
 func deleteRecods(c *gin.Context) {
@@ -175,27 +96,10 @@ func deleteRecods(c *gin.Context) {
 
 	c.JSON(200, "Deleted records")
 
-	//db := dbConn()
-	/*
-		defer db.Close()
-
-		sql := `DELETE FROM cars WHERE id = ?;`
-		_, err := db.Exec(sql, 6)
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		fmt.Fprintln(w, "Deleted Record")
-		log.Println("Deleted Record")
-	*/
 }
 
 func main() {
 	log.Println("Server started on: http://localhost:8080")
-
-	//http.HandleFunc("/update", updateRecods)
-	//http.HandleFunc("/delete", deleteRecods)
 
 	server := gin.Default()
 
@@ -206,6 +110,6 @@ func main() {
 	server.PUT("/update", updateRecods)
 	server.DELETE("/delete", deleteRecods)
 
-	server.Run(":8080")
+	server.Run(":3000")
 
 }

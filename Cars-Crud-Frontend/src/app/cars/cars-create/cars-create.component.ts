@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import {CarsService} from '../../services/cars.service'
 
 
@@ -19,9 +20,11 @@ export class CarsCreateComponent implements OnInit {
   });
 
 
+
   constructor(
     private formBuilder: FormBuilder,
-    private carService: CarsService
+    private carService: CarsService,
+    private router: Router
   ) { 
    
   }
@@ -36,7 +39,9 @@ export class CarsCreateComponent implements OnInit {
     let model = this.checkoutForm.value.Model;
     let year = this.checkoutForm.value.Year;
 
-    let car = [name, model, year];
+    console.log(name)
+
+    let car = { name, model, year};
     
 
     if(name === '' || model === '' || year ===  '' ){
@@ -46,7 +51,9 @@ export class CarsCreateComponent implements OnInit {
 
   
     this.carService.createCar(car).subscribe(result => {
-      console.log(result)
+     alert(result)
+    this.checkoutForm.reset();
+    this.router.navigate(['/cars']);
      
     })
 
