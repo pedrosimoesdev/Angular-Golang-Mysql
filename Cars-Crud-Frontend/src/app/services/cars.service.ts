@@ -24,10 +24,16 @@ export class CarsService {
 
  
   createCar( data: any) { 
-  
-  return this.httpClient.post<Cars>(this.SERVER + 'insert' , data, {})
-      .pipe(catchError((e) => this.handleError(e)));
-  }
+    return this.httpClient.post<Cars>(this.SERVER + 'insert' , data, {})
+        .pipe(catchError((e) => this.handleError(e)));
+    }
+
+
+    deleteCar( id: any) { 
+      return this.httpClient.delete<Cars>(this.SERVER + 'delete' , {body: id}, )
+          .pipe(catchError((e) => this.handleError(e)));
+      }
+
 
   // Error handling
   handleError(error: any) {

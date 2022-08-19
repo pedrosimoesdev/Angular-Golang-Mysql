@@ -26,8 +26,20 @@ export class CarsComponent implements OnInit {
   }
 
   getCars(){
+    //call services to get all records
    this.carService.getCars().subscribe(result => {
     this.Cars=result;
    })
+  }
+
+  DeleteRecords(id: any){
+    console.log(id);
+    if(confirm("Are you sure to delete " )) {
+      //call services to get all records
+     this.carService.deleteCar(id).subscribe(result => {
+      alert(result)
+       this.getCars()
+     })
+    }
   }
 }

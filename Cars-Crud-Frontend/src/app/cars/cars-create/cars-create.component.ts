@@ -39,17 +39,13 @@ export class CarsCreateComponent implements OnInit {
     let model = this.checkoutForm.value.Model;
     let year = this.checkoutForm.value.Year;
 
-    console.log(name)
-
     let car = { name, model, year};
     
-
     if(name === '' || model === '' || year ===  '' ){
       alert('Please fill all inputs')
       return;
     } 
-
-  
+    //call service to insert valus of database
     this.carService.createCar(car).subscribe(result => {
      alert(result)
     this.checkoutForm.reset();

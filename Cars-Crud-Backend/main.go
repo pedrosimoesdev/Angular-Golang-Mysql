@@ -52,8 +52,12 @@ func getRecords(c *gin.Context) {
 
 func insertRecods(c *gin.Context) {
 
-	log.Println("test")
 	data, err := ioutil.ReadAll(c.Request.Body)
+
+	if err != nil {
+		log.Panicf("error: %s", err)
+		c.JSON(500, "not ok records")
+	}
 
 	//check why i need doing it
 	//I guess that it use to convert to string this endpoint returns Json format
@@ -63,11 +67,6 @@ func insertRecods(c *gin.Context) {
 	var name = records.Name
 	var model = records.Model
 	var year = records.Year
-
-	if err != nil {
-		log.Panicf("error: %s", err)
-		c.JSON(500, "not ok records")
-	}
 
 	db := dbConn()
 
@@ -90,9 +89,19 @@ func updateRecods(c *gin.Context) {
 
 func deleteRecods(c *gin.Context) {
 
+	data, err := ioutil.ReadAll(c.Request.Body)
+
+	var id = string(data)
+	log.Println("ID:", id)
+
+	if err != nil {
+		log.Panicf("error: %s", err)
+		c.JSON(500, "not ok records")
+	}
+
 	db := dbConn()
 
-	db.Delete(&Cars{}, 2)
+	db.Delete(&Cars{}, id)
 
 	c.JSON(200, "Deleted records")
 

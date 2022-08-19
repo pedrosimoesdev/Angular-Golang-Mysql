@@ -32,8 +32,12 @@
       <td>{{car.Model}} </td>
       <td>{{car.Year}} </td>
       <td style="text-align:center">
+       
         <button type="button" class="btn btn-warning">Update Record</button>
-        <button type="button" class="btn btn-danger">Delete Record</button>
+     
+          <button type="button" class="btn btn-danger" (click)="DeleteRecords(car.Id)">Delete Record</button>
+      
+      
       </td>
     </tr>
   </tbody>
