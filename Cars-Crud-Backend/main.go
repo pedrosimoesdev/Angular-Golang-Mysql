@@ -14,10 +14,11 @@ import (
 )
 
 type Cars struct {
-	Id        int
+	// to do there are issue with id and year int to
+	Id        string
 	Name      string
 	Model     string
-	Year      int
+	Year      string
 	DeleteAt  time.Time
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -79,9 +80,34 @@ func insertRecods(c *gin.Context) {
 
 func updateRecods(c *gin.Context) {
 
+	log.Println("test")
+
+	data, err := ioutil.ReadAll(c.Request.Body)
+
+	if err != nil {
+		log.Panicf("error: %s", err)
+		c.JSON(500, "not ok records")
+	}
+
+	//check why i need doing it
+	//I guess that it use to convert to string this endpoint returns Json format
+	records := Cars{}
+	json.Unmarshal([]byte(data), &records)
+
+	var id = records.Id
+	var name = records.Name
+	var model = records.Model
+	var year = records.Year
+
+	log.Println(records)
+	log.Println(id)
+	log.Println(name)
+	log.Println(year)
+	log.Println(model)
+
 	db := dbConn()
 
-	db.Model(&Cars{}).Where("id = 1").Updates(Cars{Name: "helloTEST", Model: "modelTest", Year: 555555})
+	db.Model(&Cars{}).Where("id = ?", id).Updates(Cars{Name: name, Model: model, Year: year})
 
 	c.JSON(200, "Updated records")
 

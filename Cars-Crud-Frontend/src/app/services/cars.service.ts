@@ -28,11 +28,18 @@ export class CarsService {
         .pipe(catchError((e) => this.handleError(e)));
     }
 
+    editCar( data: any) { 
+      return this.httpClient.put<Cars>(this.SERVER + 'update' , data, {})
+          .pipe(catchError((e) => this.handleError(e)));
+      }
+
 
     deleteCar( id: any) { 
       return this.httpClient.delete<Cars>(this.SERVER + 'delete' , {body: id}, )
           .pipe(catchError((e) => this.handleError(e)));
       }
+
+      
 
 
   // Error handling

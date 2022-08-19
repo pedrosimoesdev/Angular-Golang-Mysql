@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { map } from 'rxjs';
 import {CarsService} from '../services/cars.service'
 import {Cars} from '../model/cars'
+import { Router } from '@angular/router';
 
 
 
@@ -13,9 +14,12 @@ import {Cars} from '../model/cars'
 export class CarsComponent implements OnInit {
 
 
-  constructor(private carService: CarsService){
+  constructor(
+    private carService: CarsService,
+    private router: Router
+    ){
    
-  }
+     }
   title = 'Show Cars'
   Cars : any;
   
@@ -32,7 +36,23 @@ export class CarsComponent implements OnInit {
    })
   }
 
-  DeleteRecords(id: any){
+  updateRecord(id: number, name: string, model: string, year: number){
+
+    this.router.navigate(['/cars/edit', id,name,model,year]);
+
+   
+
+    // console.log(id);
+    // if(confirm("Are you sure to delete " )) {
+    //   //call services to get all records
+    //  this.carService.deleteCar(id).subscribe(result => {
+    //   alert(result)
+    //    this.getCars()
+    //  })
+    // }
+  }
+
+  deleteRecords(id: any){
     console.log(id);
     if(confirm("Are you sure to delete " )) {
       //call services to get all records
