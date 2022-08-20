@@ -7,6 +7,8 @@ Database: crud_cars <br />
 Table: crud <br />
 Filds: ID-int, name- varchar , model -varchar , year-int <br />
 
+Example query: SELECT id, name , model, year FROM crud_cars.cars order by id desc;  <br />
+
 To  start project use air compiler to backend and ng server to frontend <br />
 <br />
 Some information or help please contact me : pedrosimoesdeveloper@gmail.com <br /> 
